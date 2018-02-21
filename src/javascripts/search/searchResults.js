@@ -2,7 +2,6 @@ import React from 'react';
 import ResultItem from './ResultItem';
 
 function SearchResults(props){
-  console.log("SearchResults props =>", props)
   return (
     <div className="results-wrapper">
       <div className="results">

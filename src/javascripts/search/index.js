@@ -28,8 +28,6 @@ class Search extends Component{
     let client = this.props.client
     let response = await client.request(url)
 
-    console.log("response =>", response)
-
     //updating founded results
     if(response.results && response.results.length > 0){
       this.setState({
@@ -47,6 +45,8 @@ class Search extends Component{
   handleTextToSearch = (event) => {
     this.setState({textToSearch: event.target.value})
   }
+
+
 
   render(){
     let showResults = null
