@@ -1,19 +1,19 @@
 /*
 This is the first JavaScript file that runs once your iframe is loaded within a Zendesk product.
 */
-import ZAFClient from 'zendesk_app_framework_sdk';
 import I18n from 'i18n';
 import LegacyApp from './legacy_app';
 import React from 'react';
 import {render} from 'react-dom';
-import Main from './components/main'
+import Home from './pages/containers/home'
 
 const app = document.getElementById('app');
 
-render(<Main/>, app);
+render(<Home/>, app);
 
-// // Create a new ZAFClient
-// var client = ZAFClient.init();
+
+
+
 //
 // // add an event listener to detect once your app is registered with the framework
 // client.on('app.registered', function(appData) {
