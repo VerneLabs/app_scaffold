@@ -8,52 +8,63 @@ class Search extends Component{
   state = {
     searchSubmitted: false,
     searchLoading: false,
+    next_page: null,
+    previous_page: null,
+    count: null,
     results: [],
     textToSearch: ''
   }
 
-   handleSearchClick = async (event) => {
+   handleSearchClick = (event) => {
     if(this.state.textToSearch){
-      console.log(`Haciendo busqueda para texto: ${this.state.textToSearch}`)
-      this.setState({searchSubmitted: true, searchLoading: true})
-      let response = await this.searchTicketsOnZendesk(this.state.textToSearch)
-      //updating founded results
-      if(response.results && response.results.length > 0){
-        this.setState({results: response.results, searchLoading: false})
-      } else {
-        this.setState({results: [], searchLoading: false})
-      }
+      this.searchTicketsOnZendesk(`/api/v2/search.json?query=type:ticket ${this.state.textToSearch}`)
     } else {
       this.setState({results: [], searchLoading: false, searchSubmitted: true}) //clean results
-      console.log("set state to empty =>", this.state)
     }
   }
 
-  searchTicketsOnZendesk = (queryText) => {
-    console.log("queryText =>", queryText)
+   searchTicketsOnZendesk = async (url) => {
+    this.setState({searchSubmitted: true, searchLoading: true})
     let client = this.props.client
-    return client.request(`/api/v2/search.json?query=type:ticket ${queryText}`)
+    let response = await client.request(url)
+
+    console.log("response =>", response)
+
+    //updating founded results
+    if(response.results && response.results.length > 0){
+      this.setState({
+        results: response.results,
+        searchLoading: false,
+        previous_page: response.previous_page,
+        next_page: response.next_page,
+        count: response.count
+      })
+    } else {
+      this.setState({results: [], searchLoading: false})
+    }
   }
 
   handleTextToSearch = (event) => {
     this.setState({textToSearch: event.target.value})
-    console.log("handleTextToSearch =>", event.target.value)
-  }
-
-  updateResults = (newResults) => {
-    console.log("updateResults =>", newResults)
-    this.setState({results: newResults})
   }
 
   render(){
     let showResults = null
-
+    //managing render states
     if(this.state.searchLoading){
       showResults = <div><p>Loading...</p></div> //if loading
     } else {
       if(this.state.searchSubmitted){ //if submitted
         if(this.state.results.length > 0){ //if results and submitted
-          showResults = <div> <SearchResults data={this.state.results}/><Paginate/></div>
+          showResults = (
+            <div>
+              <SearchResults data={this.state.results} count={this.state.count}/>
+              <Paginate
+                previous_page={this.state.previous_page}
+                next_page={this.state.next_page}
+                changePage={this.searchTicketsOnZendesk}/>
+            </div>
+          )
         } else if (this.state.results == 0 ) { //if no results and submitted
           showResults = <p>No se encontraron resultados.</p>
         }
@@ -68,7 +79,6 @@ class Search extends Component{
         <SearchBar
           handleTextToSearch={this.handleTextToSearch}
           handleSearchClick={this.handleSearchClick}
-          updateResults={this.updateResults}
         />
 
         {showResults}

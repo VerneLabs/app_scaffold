@@ -6,7 +6,14 @@ function SearchResults(props){
   return (
     <div className="results-wrapper">
       <div className="results">
-        <p className="count"><strong>{props.data.length} tickets found.</strong></p>
+        <p className="count">
+          <strong>
+            {props.count} tickets found.
+          </strong>
+        </p>
+        {
+          props.data.length != props.count &&  <p><i> Showing {props.data.length} tickets.</i></p>
+        }
         <table className="table table-condensed">
           <tbody>
             {
