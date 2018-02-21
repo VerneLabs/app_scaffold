@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import SearchBar from './searchBar';
 import SearchResults from './SearchResults';
-import Paginate from './paginate'
+import Paginate from './paginate';
+import _ from 'lodash';
 
 class Search extends Component{
 
@@ -12,10 +13,12 @@ class Search extends Component{
     previous_page: null,
     count: null,
     results: [],
-    textToSearch: ''
+    textToSearch: '',
+    selectedTickets: []
   }
 
    handleSearchClick = (event) => {
+     this.setState({selectedTickets: []})
     if(this.state.textToSearch){
       this.searchTicketsOnZendesk(`/api/v2/search.json?query=type:ticket ${this.state.textToSearch}`)
     } else {
@@ -46,7 +49,22 @@ class Search extends Component{
     this.setState({textToSearch: event.target.value})
   }
 
+  addSelectedTicket = (ticketId) => {
+      let selectedTickets = this.state.selectedTickets.slice()
+      selectedTickets.push(ticketId)
+      this.setState({selectedTickets: selectedTickets})
+  }
 
+  removeSelectedTicket = (ticketId) => {
+      let selectedTickets = this.state.selectedTickets.slice()
+      let index = _.indexOf(selectedTickets, ticketId)
+      selectedTickets.splice(index, 1)
+      this.setState({selectedTickets: selectedTickets})
+  }
+
+  sendSelectedIds = () => {
+    console.log(`Send here ${this.state.selectedTickets} to dialogus service`)
+  }
 
   render(){
     let showResults = null
@@ -58,7 +76,14 @@ class Search extends Component{
         if(this.state.results.length > 0){ //if results and submitted
           showResults = (
             <div>
-              <SearchResults data={this.state.results} count={this.state.count}/>
+              <SearchResults
+                data={this.state.results}
+                count={this.state.count}
+                addSelectedTicket = {this.addSelectedTicket}
+                removeSelectedTicket = {this.removeSelectedTicket}
+                sendSelectedIds = {this.sendSelectedIds}
+                selectedTickets = {this.state.selectedTickets}
+              />
               <Paginate
                 previous_page={this.state.previous_page}
                 next_page={this.state.next_page}
